@@ -15,7 +15,7 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 email = os.getenv('EMAIL')
 senha = os.getenv('SENHA')
 ALGORITHM = 'HS256'
-url = 'http://127.0.0.1:5000'
+url = 'https://ecommerce-tec-api.onrender.com'
 app = FastAPI()
 
 router = APIRouter()
