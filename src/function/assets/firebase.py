@@ -6,7 +6,7 @@ import imghdr
 
 
 def initialize_firebase():
-    json_file_path = r"c:\Users\bscbr\Githubprogramacao\api\api-tec-ecommerce\src\function\assets\firebase-admin.json"
+    json_file_path = r"/etc/secrets/firebase-admin.json"
 
 
     if os.path.exists(json_file_path):
