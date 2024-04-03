@@ -4,8 +4,8 @@ file = Path(__file__).resolve()
 parent = file.parent.parent.parent
 sys.path.append(str(parent))
 
-from sqlalchemy import Boolean, Column, Integer, Float, String, ForeignKey, DateTime, JSON
-from sqlalchemy.orm import relationship, backref
+from sqlalchemy import Boolean, Column, Integer, Float, String, ForeignKey, DateTime, JSON, ARRAY
+from sqlalchemy.orm import relationship
 from src.configure import Base, engine
 from datetime import datetime, timezone
 import random
@@ -142,17 +142,19 @@ class Produtos(Base):
     nome = Column(String(120), nullable=False)
     nome_estoque = Column(String(120), nullable=False)
     descricao = Column(JSON, nullable=True, default={})
+    ativado = Column(Boolean, nullable=False)
     data_criacao = Column(DateTime, nullable=False)
     data_atualizacao = Column(DateTime, nullable=False)
 
     itens_estoque = relationship('ItensEstoque', backref='produto', lazy=True, foreign_keys='ItensEstoque.produto_id')
     entradas = relationship('Entradas', backref='produto', lazy=True, primaryjoin='Produtos.id == Entradas.produto_id', foreign_keys='Entradas.produto_id')
 
-    def __init__(self, categoria_id, nome, nome_estoque, descricao={''}, data_atualizacao= datetime.now(timezone.utc)):
+    def __init__(self, categoria_id, nome, nome_estoque, ativado = True, descricao={''}, data_atualizacao= datetime.now(timezone.utc)):
         self.id = id_generator()
         self.categoria_id = categoria_id
         self.nome = nome
         self.nome_estoque = nome_estoque
+        self.ativado = ativado
         self.descricao = descricao
         self.data_criacao = datetime.now(timezone.utc)
         self.data_atualizacao = data_atualizacao
@@ -160,18 +162,22 @@ class Produtos(Base):
 class ItensEstoque(Base):
     __tablename__ = 'itensestoque'
     id = Column(String(36), primary_key=True, nullable=False)
-    produto_id = Column(String(36), ForeignKey('produtos.id'), nullable=False) 
+    produto_id = Column(String(36), ForeignKey('produtos.id'), nullable=False)
+    quantidade_vendida = Column(Integer) 
     preco = Column(Float, default=0, nullable=False)
     cor = Column(String(50), nullable=False)
     quantidade = Column(Integer, default=0)
-    imagens = Column(JSON, nullable=True, default={})
+    ativado = Column(Boolean, nullable=False)
+    imagens = Column(JSON, nullable=True, default=[])
     itenscarrinho = relationship('ItensCarrinhos', backref='itemestoque', lazy=True, foreign_keys='ItensCarrinhos.itemestoque_id')
     itemvendas = relationship('ItensVendas', backref='itemestoque', lazy=True, foreign_keys='ItensVendas.itemestoque_id')
 
-    def __init__(self, produto_id, preco, cor, quantidade, imagens={''}, data_atualizacao= datetime.now(timezone.utc)):
+    def __init__(self, produto_id, preco, cor, quantidade, quantidade_vendida = 0, ativado = True, imagens={''}, data_atualizacao= datetime.now(timezone.utc)):
         self.id = id_generator()
         self.produto_id = produto_id
         self.preco = preco
+        self.ativado = ativado
+        self.quantidade_vendida = quantidade_vendida
         self.cor = cor
         self.quantidade = quantidade
         self.imagens = imagens

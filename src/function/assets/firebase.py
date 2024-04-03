@@ -1,32 +1,36 @@
 import os
 import firebase_admin
 from firebase_admin import credentials, storage
-from pathlib import Path
 import imghdr
+from datetime import timedelta, datetime
 
-
+# Inicialize o Firebase fora das funções
 def initialize_firebase():
-    json_file_path = r"/etc/secrets/firebase-admin.json"
-
+    json_file_path = r"C:\Users\bscbr\Githubprogramacao\api\ecommerce-tec-api\src\function\assets\firebase-admin.json"
+    #json_file_path = r"/etc/secrets/firebase-admin.json"
 
     if os.path.exists(json_file_path):
         pass
     else:
         print("O arquivo firebase-admin.json não pôde ser encontrado.")
-        return
+        return None
+
     try:
         cred = credentials.Certificate(json_file_path)
         firebase_admin.initialize_app(cred, {
             "storageBucket": "ecoomerce-brenocodes-tec.appspot.com"
         })
         bucket = storage.bucket()
+        return bucket
     except FileNotFoundError:
         print("Erro: O arquivo firebase-admin.json não pôde ser aberto.")
-        return
+        return None
 
-    return bucket
+# Inicialize o Firebase uma vez no início do seu script
+bucket = initialize_firebase()
+
+# Função para salvar arquivo no Firebase
 async def salvar_firebase(nome_arquivo_firebase, arquivo):
-    bucket = initialize_firebase()
     if bucket is None:
         return "Erro: Não foi possível inicializar o Firebase."
 
@@ -51,6 +55,27 @@ async def salvar_firebase(nome_arquivo_firebase, arquivo):
     except Exception as e:
         print(f"Erro ao fazer upload do arquivo: {e}")
         return "Erro ao fazer upload do arquivo."
+
+
+def buscar_url(caminho_arquivo_firebase):
+    if bucket is None:
+        return "Erro: Não foi possível inicializar o Firebase."
+
+    blob = bucket.blob(caminho_arquivo_firebase)
+    if not blob:
+        return {'mensagem': 'Não foi possível encontrar o arquivo'}
+    
+    try:
+        expires_at = datetime.now() + timedelta(weeks=1)
+        url = blob.generate_signed_url(expires_at)
+        return url
+    except Exception as e:
+        print(f"Erro ao buscar URL do arquivo: {e}")
+        return "Erro ao buscar URL do arquivo."
+
+
+
+
 
 
 # # Caminho local do arquivo "perfil.jpg"

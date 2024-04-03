@@ -7,10 +7,10 @@ from src.config.login.token import funcionario_logado
 
 
 @router.post("/funcionarios", status_code=201)
-async def criar_funcionario(db: db_dependency, funcionario: Funcionario, response: Response, user: funcionario_logado):
-    if user['adm'] == False:
-        response.status_code = status.HTTP_401_UNAUTHORIZED
-        return {'mensagem': 'essa função exige o funcionário ser administrador'}
+async def criar_funcionario(db: db_dependency, funcionario: Funcionario, response: Response):
+    # if user['adm'] == False:
+    #     response.status_code = status.HTTP_401_UNAUTHORIZED
+    #     return {'mensagem': 'essa função exige o funcionário ser administrador'}
     try:
         funcionario_existente = db.query(models.Funcionarios).filter(models.Funcionarios.email == funcionario.email).first()
         if funcionario_existente:
