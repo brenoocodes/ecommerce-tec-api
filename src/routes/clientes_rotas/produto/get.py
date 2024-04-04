@@ -20,6 +20,10 @@ response: Response,
             produto_atual['nome'] = produto.nome
             produto_atual['descrição'] = produto.descricao
             produto_atual['ativado'] = produto.ativado
+            lista_de_cor = []
+            for item_estoque in produto.itens_estoque:
+                lista_de_cor.append(item_estoque.cor)
+            produto_atual['cores'] = lista_de_cor
             produtos_em_estoque = []
 
             for produto_em_estoque in sorted(produto.itens_estoque, key=lambda x: x.quantidade_vendida, reverse=True):
