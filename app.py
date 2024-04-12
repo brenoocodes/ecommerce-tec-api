@@ -11,6 +11,8 @@ from src.routes.funcionarios_rotas.produtos.routes import *
 from src.routes.funcionarios_rotas.produtos_in_estoque.routes import *
 from src.routes.clientes_rotas.categorias.routes import *
 from src.routes.clientes_rotas.produto.routes import *
+from src.routes.clientes_rotas.carrinho.routes import *
+from src.routes.clientes_rotas.produtos_ao_carrinho.routes import *
 
 if __name__ == "__main__":
     uvicorn.run("src.configure:app", port=5000, reload=True)

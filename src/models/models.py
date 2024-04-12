@@ -55,6 +55,7 @@ class Clientes(Base):
 
     email_token = relationship('EmailToken', backref='cliente', lazy=True, foreign_keys='EmailToken.cliente_id')
     enderecos = relationship('Enderecos', backref='cliente', lazy=True, foreign_keys='Enderecos.cliente_id')
+    carrinhos = relationship('Carrinhos', backref='cliente', lazy=True, foreign_keys='Carrinhos.cliente_id')
     compras = relationship('Vendas', backref='cliente', lazy=True, foreign_keys='Vendas.cliente_id')
 
     def __init__(self, cpf, data_de_nascimento, nome, email, senha, data_atualizacao= datetime.now(timezone.utc)):
@@ -217,26 +218,32 @@ class Entradas(Base):
 class Carrinhos(Base):
     __tablename__ = 'carrinhos'
     id = Column(String(36), primary_key=True, nullable=False)
+    cliente_id = Column(String(36), ForeignKey('clientes.id'), nullable=False)
     nome = Column(String(150), nullable=False)
     descricao = Column(String(250), nullable=True)
+    fechado = Column(Boolean, nullable=False)
     quantidade_itens = Column(Integer, nullable=True)
     valor_total = Column(Float, nullable=True)
     data_criacao = Column(DateTime, nullable=False)
     data_atualizacao = Column(DateTime, nullable=False)
-    itens = relationship('ItensCarrinhos', backref='carrinho', lazy=True, foreign_keys='ItensCarrinhos.carrinho_id')
+    itens = relationship('ItensCarrinhos', backref='carrinho', lazy=True, cascade="all, delete-orphan", foreign_keys='ItensCarrinhos.carrinho_id')
     vendas = relationship('Vendas', backref='carrinho', lazy=True, foreign_keys='Vendas.carrinho_id')
 
-    def __init__(self, nome, descricao=' ', data_atualizacao= datetime.now(timezone.utc)):
+    def __init__(self, nome, cliente_id, quantidade_itens = 0, fechado = False, valor_total = 0, descricao = ' ', data_atualizacao= datetime.now(timezone.utc)):
         self.id = id_generator()
         self.nome = nome
+        self.cliente_id = cliente_id
         self.descricao = descricao
+        self.quantidade_itens = quantidade_itens
+        self.fechado = fechado
+        self.valor_total = valor_total
         self.data_criacao = datetime.now(timezone.utc)
         self.data_atualizacao = data_atualizacao
 
 class ItensCarrinhos(Base):
     __tablename__ = 'itenscarrinhos'
     id = Column(String(36), primary_key=True, nullable=False)
-    carrinho_id = Column(String(36), ForeignKey('carrinhos.id'), nullable=False)
+    carrinho_id = Column(String(36), ForeignKey('carrinhos.id', ondelete='CASCADE'), nullable=False)
     itemestoque_id = Column(String(36), ForeignKey('itensestoque.id'), nullable=False)
     valor_unitario = Column(Float, nullable=False)
     quantidade = Column(Integer, nullable=False)
